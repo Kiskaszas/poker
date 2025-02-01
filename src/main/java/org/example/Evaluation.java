@@ -3,36 +3,36 @@ package org.example;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class Ertekeles {
+public class Evaluation {
 
     private final Random random = new Random();
-    private HashMap<HashSet<String>, String> randomLapokMap = new HashMap<>();
+    private HashMap<HashSet<String>, String> randomCarsMap = new HashMap<>();
 
     public String randomlapok(){
-        LapokEnum[] laptipus = LapokEnum.values();
+        CardsEnum[] carType = CardsEnum.values();
 
-        while(randomLapokMap.values().size() != 5) {
+        while(randomCarsMap.values().size() != 5) {
             int randomNum = random.nextInt(14 - 2) + 2;
-            randomLapokMap.putIfAbsent(
-                    lapertekRandom(randomNum),
-                    String.valueOf(laptipus[random.nextInt(laptipus.length)]));
+            randomCarsMap.putIfAbsent(
+                    carValueRandom(randomNum),
+                    String.valueOf(carType[random.nextInt(carType.length)]));
         }
-        List<Lap> lapok = new ArrayList<>();
-        for (Map.Entry<HashSet<String>, String> entry : randomLapokMap.entrySet()){
-            lapok.add(new Lap(entry.getKey().iterator().next(), entry.getValue()));
+        List<Card> cards = new ArrayList<>();
+        for (Map.Entry<HashSet<String>, String> entry : randomCarsMap.entrySet()){
+            cards.add(new Card(entry.getKey().iterator().next(), entry.getValue()));
         }
 
-        String eredmeny = ertekeles(lapok);
-        return randomLapokMap +" "+ lapok + " " + eredmeny;
+        String result = evaluation(cards);
+        return randomCarsMap +" "+ cards + " " + result;
     }
 
-    protected HashSet<String> lapertekRandom(int randomNum) {
+    protected HashSet<String> carValueRandom(int randomNum) {
         HashSet<String> lapertekSet = new HashSet<>(1);
         lapertekSet.add(String.valueOf(randomNum));
         return lapertekSet;
     }
 
-    protected String ertekeles(List<Lap> lapok){
+    protected String evaluation(List<Card> lapok){
         if (isRoyalFlush(lapok)){
             return "Royal Flush";
         } else if (isStraightFlush(lapok)) {
@@ -53,7 +53,7 @@ public class Ertekeles {
         } else if (isPairType(lapok,2)){
             return "Pár";
         } else {
-            Collections.sort(lapok, Comparator.comparing(o -> Integer.valueOf(o.getErtek())));
+            Collections.sort(lapok, Comparator.comparing(o -> Integer.valueOf(o.getValue())));
             System.out.println(lapok.get(lapok.size()-1));
             var highCard = lapok.get(lapok.size()-1).toString();
             highCard = transformCardIgNeed(highCard);
@@ -72,9 +72,9 @@ public class Ertekeles {
         return highCard;
     }
 
-    protected boolean isTwoPair(List<Lap> lapok) {
-        List<String> duplicates = lapok.stream()
-                .map(lap -> lap.getErtek())
+    protected boolean isTwoPair(List<Card> cards) {
+        List<String> duplicates = cards.stream()
+                .map(card -> card.getValue())
                 .collect(Collectors.groupingBy(v -> v, Collectors.counting()))
                 .entrySet()
                 .stream()
@@ -85,32 +85,32 @@ public class Ertekeles {
         return duplicates.size() == 2;
     }
 
-    protected boolean isPairType(List<Lap> lapok, int pairNum){
-        return lapok.stream()
-                .map(lap -> lap.getErtek())
+    protected boolean isPairType(List<Card> cards, int pairNum){
+        return cards.stream()
+                .map(card -> card.getValue())
                 .collect(Collectors.groupingBy(ert -> ert, Collectors.counting()))
                 .values()
                 .stream()
                 .anyMatch(count -> count == pairNum);
     }
 
-    protected boolean isFullHouse(List<Lap> lapok){
-        return isPairType(lapok, 2) && isPairType(lapok, 3);
+    protected boolean isFullHouse(List<Card> cards){
+        return isPairType(cards, 2) && isPairType(cards, 3);
     }
 
-    protected boolean isFlush(List<Lap> lapok){
+    protected boolean isFlush(List<Card> lapok){
         return lapok.stream()
-                .map(lap -> lap.getTipus())
+                .map(card -> card.getType())
                 .collect(Collectors.groupingBy(ert -> ert, Collectors.counting()))
                 .values()
                 .stream()
                 .anyMatch(count -> count == 5);
     }
 
-    protected boolean isStraight(List<Lap> lapok){
-        for (int i = 0; i < lapok.size()-1; i++) {
-            int aktLapErtek = Integer.parseInt(lapok.get(i).getErtek());
-            int kovLapErtek = Integer.parseInt(lapok.get(i+1).getErtek());
+    protected boolean isStraight(List<Card> cards){
+        for (int i = 0; i < cards.size()-1; i++) {
+            int aktLapErtek = Integer.parseInt(cards.get(i).getValue());
+            int kovLapErtek = Integer.parseInt(cards.get(i+1).getValue());
             if (kovLapErtek - aktLapErtek != 1) {
                 return false;
             }
@@ -118,22 +118,22 @@ public class Ertekeles {
         return true;
     }
 
-    protected boolean isStraightFlush(List<Lap> lapok){
-        return isStraight(lapok) && isFlush(lapok);
+    protected boolean isStraightFlush(List<Card> cards){
+        return isStraight(cards) && isFlush(cards);
     }
 
-    protected boolean isRoyalFlush(List<Lap> lapok){
+    protected boolean isRoyalFlush(List<Card> cards){
         int topCards = 0;
-        for (int i = 0; i < lapok.size(); i++) {
-            switch (lapok.get(i).getErtek()){
+        for (int i = 0; i < cards.size(); i++) {
+            switch (cards.get(i).getValue()){
                 case "10": topCards++; break;
-                case "J": lapok.get(i).setErtek("11"); topCards++; break;
-                case "Q": lapok.get(i).setErtek("12"); topCards++; break;
-                case "K": lapok.get(i).setErtek("13"); topCards++; break;
-                case "A": lapok.get(i).setErtek("14"); topCards++; break;
+                case "J": cards.get(i).setValue("11"); topCards++; break;
+                case "Q": cards.get(i).setValue("12"); topCards++; break;
+                case "K": cards.get(i).setValue("13"); topCards++; break;
+                case "A": cards.get(i).setValue("14"); topCards++; break;
             }
         }
-        if (isStraight(lapok) && isFlush(lapok) && topCards == 5) {
+        if (isStraight(cards) && isFlush(cards) && topCards == 5) {
             return true;
         }
         return false;

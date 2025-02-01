@@ -1,6 +1,6 @@
 package org.example;
 
-public enum LapokEnum {
+public enum CardsEnum {
 
     treff,
     kor,
